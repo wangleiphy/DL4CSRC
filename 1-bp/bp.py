@@ -44,6 +44,7 @@ class F(object):
 
 
 class Sigmoid(F):
+    '''Sigmoid activation function module'''
     def forward(self, x, *args):
         self.x = x
         self.y = 1.0 / (1.0 + np.exp(-x))
@@ -54,6 +55,7 @@ class Sigmoid(F):
 
 
 class Softmax(F):
+    '''Softmax function module'''
     def forward(self, x, *args):
         self.x = x
         xtmp = x - x.max(axis=-1, keepdims=True) # to avoid overflow
@@ -66,6 +68,7 @@ class Softmax(F):
 
 
 class CrossEntropy(F):
+    '''CrossEntropy function module'''
     def forward(self, x, p, *args):
         # p is target probability. In MNIST dataset, it represents a one-hot label.
         self.p = p
@@ -78,6 +81,7 @@ class CrossEntropy(F):
 
 
 class Mean(F):
+    '''Mean function module'''
     def forward(self, x, *args):
         self.x = x
         return x.mean()
@@ -94,6 +98,9 @@ def numdiff(node, x, var, y_delta, delta, args):
         x (ndarray): input array.
         delta: the strength of perturbation used in numdiff.
         args: additional arguments for forward function.
+
+    Returns:
+        ndarray: gradient computed.
     '''
     var_raveled = var.ravel()
 
@@ -134,6 +141,7 @@ def gradient_test(node, x, args=(), delta=0.01, precision=1e-3):
             *var_delta.shape), var_delta, atol=precision, rtol=precision)
 
 def sanity_checks():
+    '''Function used to check if all module backward properly'''
     np.random.seed(5)
     for node in [Linear(6, 4), Sigmoid(), Softmax(), Mean()]:
         print('checking %s' % node.__class__.__name__)
@@ -207,6 +215,9 @@ def random_draw(data, label, batch_size):
         label (ndarray): one-hot label for dataset,
             for example, 3 is [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
         batch_size (int): size of batch, the number of data to draw.
+
+    Returns:
+        tuple: length is 2, They are drawed samples from dataset, and labels.
     '''
     perm = np.random.permutation(data.shape[0])
     data_b = data[perm[:batch_size]]
@@ -214,14 +225,35 @@ def random_draw(data, label, batch_size):
     return data_b.reshape([data_b.shape[0], -1]) / 255.0, label_b
 
 def match_ratio(result, label):
-    '''the ratio of result matching target.'''
+    '''
+    the ratio of result matching target.
+
+    Args:
+        result(ndarray): result outputed by neural network.
+        label(ndarray): the labels from dataset.
+
+    Returns:
+        float: math ratio of result and label.
+    '''
     label_p = np.argmax(result, axis=1)
     label_t = np.argmax(label, axis=1)
     ratio = np.sum(label_p == label_t) / label_t.shape[0]
     return ratio
 
 def net_forward(net, lossfunc, x, label):
-    '''forward function for this sequencial network.'''
+    '''
+    forward function for this sequencial network.
+
+    Args:
+        net(list): list of layers in neural network.
+        lossfunc(F): the loss function of this neural network.
+        x(ndarray): the training set.
+        label(ndarray): the label of training set.
+
+    Returns:
+        tuple: length is 2, They are result outputed by this neural network,
+               and loss.
+    '''
     for node in net:
         if node is lossfunc:
             result = x
@@ -231,13 +263,22 @@ def net_forward(net, lossfunc, x, label):
     return result, x
 
 def net_backward(net):
-    '''backward function for this sequencial network.'''
+    '''
+    backward function for this sequencial network.
+
+    Args:
+        net(list): list of layers in neural network.
+
+    Returns:
+        ndarray: gradients of output w.r.t inputs
+    '''
     y_delta = 1.0
     for node in net[::-1]:
         y_delta = node.backward(y_delta)
     return y_delta
 
 def train():
+    '''Training function'''
     np.random.seed(5)
     batch_size = 100
     learning_rate = 0.5
