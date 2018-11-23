@@ -10,7 +10,7 @@ To run the main program, please open this folder in a terminal and type
 $ python learn_mnist_classification.py
 ```
 
-This program will
+It will
 
 1). check the consistency of gradients obtained by back-propagation and numeric differentiation,
 
