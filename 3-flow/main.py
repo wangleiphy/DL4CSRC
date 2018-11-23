@@ -7,28 +7,35 @@ import matplotlib.pyplot as plt
 from net import Simple_MLP
 from flow import MongeAmpereFlow
 
-xlimits=[-4, 4]
-ylimits=[-4, 4]
-numticks=21
-x = np.linspace(*xlimits, num=numticks, dtype=np.float32)
-y = np.linspace(*ylimits, num=numticks, dtype=np.float32)
-X, Y = np.meshgrid(x, y)
-xy = np.concatenate([np.atleast_2d(X.ravel()), np.atleast_2d(Y.ravel())]).T
-xy = torch.from_numpy(xy).contiguous()
-
-# Set up plotting code
-def plot_isocontours(ax, func, alpha=1.0):
-    zs = np.exp(func(xy).data.numpy())
-    Z = zs.reshape(X.shape)
-    plt.contour(X, Y, Z, alpha=alpha)
-    ax.set_yticks([])
-    ax.set_xticks([])
-    plt.xlim(xlimits)
-    plt.ylim(ylimits)
-
 if __name__=='__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='')
+    parser.add_argument("-cuda", type=int, default=-1, help="use GPU")
+    args = parser.parse_args()
+    device = torch.device("cpu" if args.cuda<0 else "cuda:"+str(args.cuda))
+
+    xlimits=[-4, 4]
+    ylimits=[-4, 4]
+    numticks=21
+    x = np.linspace(*xlimits, num=numticks, dtype=np.float32)
+    y = np.linspace(*ylimits, num=numticks, dtype=np.float32)
+    X, Y = np.meshgrid(x, y)
+    xy = np.concatenate([np.atleast_2d(X.ravel()), np.atleast_2d(Y.ravel())]).T
+    xy = torch.from_numpy(xy).contiguous().to(device)
+
+    # Set up plotting code
+    def plot_isocontours(ax, func, alpha=1.0):
+        zs = np.exp(func(xy).cpu().detach().numpy())
+        Z = zs.reshape(X.shape)
+        plt.contour(X, Y, Z, alpha=alpha)
+        ax.set_yticks([])
+        ax.set_xticks([])
+        plt.xlim(xlimits)
+        plt.ylim(ylimits)
+
     from objectives import Ring2D
     target = Ring2D()
+    target.to(device)
 
     epsilon = 0.1 
     Nsteps = 50
@@ -41,7 +48,8 @@ if __name__=='__main__':
     plt.show(block=False)
 
     net = Simple_MLP(dim=2, hidden_size = 32)
-    model = MongeAmpereFlow(net, epsilon, Nsteps, device='cpu')
+    model = MongeAmpereFlow(net, epsilon, Nsteps, device=device)
+    model.to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr = 1e-2)
 
@@ -66,7 +74,7 @@ if __name__=='__main__':
         plot_isocontours(ax, target, alpha=0.5)
         plot_isocontours(ax, model.net) # Breiner potential 
 
-        samples = x.data.numpy()
+        samples = x.cpu().detach().numpy()
         plt.plot(samples[:, 0], samples[:,1],'o', alpha=0.8)
 
         plt.draw()

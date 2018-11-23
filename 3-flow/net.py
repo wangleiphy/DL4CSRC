@@ -23,9 +23,8 @@ class Simple_MLP(nn.Module):
     Single hidden layer MLP 
     with handcoded grad and laplacian function
     '''
-    def __init__(self, dim, hidden_size, use_z2=True, device='cpu', name=None):
+    def __init__(self, dim, hidden_size, use_z2=True,name=None):
         super(Simple_MLP, self).__init__()
-        self.device = device
         if name is None:
             self.name = 'Simple_MLP'
         else:
@@ -67,10 +66,3 @@ class Simple_MLP(nn.Module):
         out = torch.mm(out, self.fc1.weight**2)
         return out.sum(dim=1)
     
-    #def laplacian(self, x):
-    #    batchsize = x.shape[0]
-    #    z = torch.randn(batchsize, self.dim).to(x.device)
-    #    #z = 2*torch.randint(2, (dim, 1), device=x.device).float() - 1.0
-    #    grad_z = (self.grad(x)*z).sum(dim=1)
-    #    grad2_z = torch.autograd.grad(grad_z, x, grad_outputs=torch.ones(x.shape[0], device=x.device), create_graph=True)[0]
-    #    return (grad2_z * z).sum(dim=1)
