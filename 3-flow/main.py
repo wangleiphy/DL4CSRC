@@ -4,13 +4,14 @@ import torch.nn as nn
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from net import Simple_MLP
+from net import Simple_MLP, MLP
 from flow import MongeAmpereFlow
 
 if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser(description='')
     parser.add_argument("-cuda", type=int, default=-1, help="use GPU")
+    parser.add_argument("-net", default='Simple_MLP', help="network architecture")
     args = parser.parse_args()
     device = torch.device("cpu" if args.cuda<0 else "cuda:"+str(args.cuda))
 
@@ -46,8 +47,16 @@ if __name__=='__main__':
     ax = fig.add_subplot(111, frameon=False)
     plt.ion()
     plt.show(block=False)
+    
 
-    net = Simple_MLP(dim=2, hidden_size = 32)
+    if (args.net=='Simple_MLP'):
+        net = Simple_MLP(dim=2, hidden_size = 32, device = device)
+    elif (args.net=='MLP'):
+        net = MLP(dim=2, hidden_size = 32, device = device)
+    else:
+        print ('what net ?', args.net)
+        sys.exit(1)
+
     model = MongeAmpereFlow(net, epsilon, Nsteps, device=device)
     model.to(device)
 
