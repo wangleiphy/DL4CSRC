@@ -1,8 +1,8 @@
 from __future__ import division
 import numpy as np
 
-from etc import sanity_checks, load_MNIST, random_draw, match_ratio
-from module import Linear, Sigmoid, Softmax, Softmax, CrossEntropy, Mean, net_backward, net_forward
+from utils import sanity_checks, load_MNIST, random_draw, match_ratio
+from computation_graph import Linear, Sigmoid, Softmax, Softmax, CrossEntropy, Mean, net_backward, net_forward
 
 def train():
     '''Training function'''
