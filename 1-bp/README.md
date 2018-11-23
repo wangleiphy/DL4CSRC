@@ -7,7 +7,7 @@ A minimal example of implementing back propagation computation graph with `numpy
 Open this folder in a terminal and type
 
 ```bash
-$ python computation_graph.py
+$ python main.py
 ```
 
 This program will
@@ -20,7 +20,11 @@ This program will
 
 ## Building blocks of a simple classification networks
 
-The computation graph representation of the above network and the mathematical definitions of each node
+The computation graph representation of the above network
 
-<img src="cgraph_mnist_full.png" width="300px" alt="computation graph"/>
-<img src="formulas.png" width="500px" alt="formulas"/>
+<img src="../assets/cgraph_mnist_full.png" width="300px" alt="computation graph"/>
+
+## Node definitions
+Mathematical definitions of each node, code realizations are contained in `module.py`
+
+<img src="../assets/formulas.png" width="500px" alt="formulas"/>
