@@ -270,7 +270,7 @@ def net_backward(net):
         net(list): list of layers in neural network.
 
     Returns:
-        ndarray: gradients of output w.r.t inputs
+        ndarray: gradients of loss w.r.t inputs
     '''
     y_delta = 1.0
     for node in net[::-1]:
