@@ -1,0 +1,4 @@
+[deps]
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+HCubature = "19dc6840-f33b-545b-b366-655c7e3ffd49"
+TensorOperations = "6aa20fa7-93e2-5fca-9bc0-fbd0db3c71a2"

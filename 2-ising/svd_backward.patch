@@ -1,0 +1,19 @@
+diff --git a/tools/autograd/templates/Functions.cpp b/tools/autograd/templates/Functions.cpp
+index 3062e0021..9fdc4a792 100644
+--- a/tools/autograd/templates/Functions.cpp
++++ b/tools/autograd/templates/Functions.cpp
+@@ -1557,11 +1557,12 @@ Tensor svd_backward(const std::vector<torch::autograd::Variable> &grads, const T
+   auto sigma_mat_inv = sigma.pow(-1).diag();
+   auto sigma_expanded_sq = sigma.pow(2).expand_as(sigma_mat);
+   auto F = sigma_expanded_sq - sigma_expanded_sq.t();
++  F = F.div(F.pow(2) + 1E-12); 
+   // The following two lines invert values of F, and fills the diagonal with 0s.
+   // Notice that F currently has 0s on diagonal. So we fill diagonal with +inf
+   // first to prevent nan from appearing in backward of this function.
+-  F.diagonal().fill_(INFINITY);
+-  F = F.pow(-1);
++  //F.diagonal().fill_(INFINITY);
++  //F = F.pow(-1);
+ 
+   Tensor u_term, v_term;
+ 
