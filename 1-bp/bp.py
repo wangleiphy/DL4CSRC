@@ -1,7 +1,9 @@
 from __future__ import division
 import numpy as np
 
-# Define a Set of Computation Nodes
+import subprocess
+import os
+import struct
 
 class Linear(object):
     '''
@@ -83,10 +85,16 @@ class Mean(F):
     def backward(self, delta):
         return delta * np.ones(self.x.shape) / np.prod(self.x.shape)
 
-# Sanity Check
-
 def numdiff(node, x, var, y_delta, delta, args):
-    '''numerical differenciation.'''
+    '''
+    numerical differenciation.
+
+    Args:
+        node(obj): user defined neural network node.
+        x (ndarray): input array.
+        delta: the strength of perturbation used in numdiff.
+        args: additional arguments for forward function.
+    '''
     var_raveled = var.ravel()
 
     var_delta_list = []
@@ -125,29 +133,22 @@ def gradient_test(node, x, args=(), delta=0.01, precision=1e-3):
         np.testing.assert_allclose(var_delta_num.reshape(
             *var_delta.shape), var_delta, atol=precision, rtol=precision)
 
-# Do the checks
-np.random.seed(5)
-for node in [Linear(6, 4), Sigmoid(), Softmax(), Mean()]:
+def sanity_checks():
+    np.random.seed(5)
+    for node in [Linear(6, 4), Sigmoid(), Softmax(), Mean()]:
+        print('checking %s' % node.__class__.__name__)
+        x = np.random.uniform(size=(5, 6))
+        gradient_test(node, x)
+
+    # we take special care of cross entropy node here,
+    # it takes an additional parameter p
+    node = CrossEntropy()
     print('checking %s' % node.__class__.__name__)
-    x = np.random.uniform(size=(5, 6))
-    gradient_test(node, x)
-
-# we take special care of cross entropy node here,
-# it takes an additional parameter p
-node = CrossEntropy()
-print('checking %s' % node.__class__.__name__)
-p = np.random.uniform(0.1, 1, [5, 6])
-p = p / p.sum(axis=-1, keepdims=True)
-x = np.random.uniform(0.1, 1, [5, 6])
-x = x / x.sum(axis=-1, keepdims=True)
-gradient_test(node, x, args=(p,), precision=1e-1)
-
-# Load MNIST data
-
-import subprocess
-import os
-import struct
-
+    p = np.random.uniform(0.1, 1, [5, 6])
+    p = p / p.sum(axis=-1, keepdims=True)
+    x = np.random.uniform(0.1, 1, [5, 6])
+    x = x / x.sum(axis=-1, keepdims=True)
+    gradient_test(node, x, args=(p,), precision=1e-1)
 
 def load_MNIST():
     '''
@@ -164,7 +165,7 @@ def load_MNIST():
     path = "data/raw/"
     cmd = ["mkdir", "-p", path]
     subprocess.check_call(cmd)
-    print('Downloading MNIST dataset. Please do not stop the program\
+    print('Downloading MNIST dataset. Please do not stop the program \
 during the download. If you do, remove `data` folder and try again.')
     for obj in objects:
         if not os.path.isfile(path + obj):
@@ -212,19 +213,6 @@ def random_draw(data, label, batch_size):
     label_b = label[perm[:batch_size]]
     return data_b.reshape([data_b.shape[0], -1]) / 255.0, label_b
 
-# Run the training
-
-np.random.seed(5)
-batch_size = 100
-learning_rate = 0.5
-dim_img = 784
-num_digit = 10
-# an epoch means running through the training set roughly once
-num_epoch = 10
-train_data, train_label, test_data, test_label = load_MNIST()
-num_iteration = len(train_data) // batch_size
-
-
 def match_ratio(result, label):
     '''the ratio of result matching target.'''
     label_p = np.argmax(result, axis=1)
@@ -232,13 +220,7 @@ def match_ratio(result, label):
     ratio = np.sum(label_p == label_t) / label_t.shape[0]
     return ratio
 
-
-lossfunc = CrossEntropy()
-# define a list as a network, nodes are chained up
-net = [Linear(dim_img, num_digit), Softmax(), lossfunc, Mean()]
-
-
-def net_forward(x, label):
+def net_forward(net, lossfunc, x, label):
     '''forward function for this sequencial network.'''
     for node in net:
         if node is lossfunc:
@@ -248,34 +230,53 @@ def net_forward(x, label):
             x = node.forward(x)
     return result, x
 
-
-def net_backward():
+def net_backward(net):
     '''backward function for this sequencial network.'''
     y_delta = 1.0
     for node in net[::-1]:
         y_delta = node.backward(y_delta)
     return y_delta
 
-# display test loss before training
-x, label = random_draw(test_data, test_label, 1000)
-result, loss = net_forward(x, label)
-print('Before Training.\nTest loss = %.4f, correct rate = %.3f' % (loss, match_ratio(result, label)))
+def train():
+    np.random.seed(5)
+    batch_size = 100
+    learning_rate = 0.5
+    dim_img = 784
+    num_digit = 10
+    # an epoch means running through the training set roughly once
+    num_epoch = 10
+    train_data, train_label, test_data, test_label = load_MNIST()
+    num_iteration = len(train_data) // batch_size
 
-for epoch in range(num_epoch):
-    for j in range(num_iteration):
-        x, label = random_draw(train_data, train_label, batch_size)
-        result, loss = net_forward(x, label)
+    lossfunc = CrossEntropy()
+    # define a list as a network, nodes are chained up
+    net = [Linear(dim_img, num_digit), Softmax(), lossfunc, Mean()]
 
-        net_backward()
+    # display test loss before training
+    x, label = random_draw(test_data, test_label, 1000)
+    result, loss = net_forward(net, lossfunc, x, label)
+    print('Before Training.\nTest loss = %.4f, correct rate = %.3f' % (loss, match_ratio(result, label)))
 
-        # update network parameters
-        for node in net:
-            for p, p_delta in zip(node.parameters, node.parameters_deltas):
-                p -= learning_rate * p_delta  # stochastic gradient descent
+    for epoch in range(num_epoch):
+        for j in range(num_iteration):
+            x, label = random_draw(train_data, train_label, batch_size)
+            result, loss = net_forward(net, lossfunc, x, label)
 
-    print("epoch = %d/%d, loss = %.4f, corret rate = %.2f" %
-          (epoch, num_epoch, loss, match_ratio(result, label)))
+            net_backward(net)
 
-x, label = random_draw(test_data, test_label, 1000)
-result, loss = net_forward(x, label)
-print('After Training.\nTest loss = %.4f, correct rate = %.3f' % (loss, match_ratio(result, label)))
+            # update network parameters
+            for node in net:
+                for p, p_delta in zip(node.parameters, node.parameters_deltas):
+                    p -= learning_rate * p_delta  # stochastic gradient descent
+
+        print("epoch = %d/%d, loss = %.4f, corret rate = %.2f" %
+              (epoch, num_epoch, loss, match_ratio(result, label)))
+
+    x, label = random_draw(test_data, test_label, 1000)
+    result, loss = net_forward(net, lossfunc, x, label)
+    print('After Training.\nTest loss = %.4f, correct rate = %.3f' % (loss, match_ratio(result, label)))
+
+
+if __name__ == "__main__":
+    sanity_checks()
+    train()
