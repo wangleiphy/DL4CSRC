@@ -44,11 +44,10 @@ class MongeAmpereFlow(nn.Module):
                 
         return x, logp
 
-    def sample(self, batch_size, sigma=1.0):
+    def sample(self, batch_size):
         #initial value from Gaussian
-        x = torch.Tensor(batch_size, self.dim).normal_().requires_grad_().to(self.device)
-        logp = -0.5 * x.pow(2).add(math.log(2 * math.pi* sigma**2)).sum(1) 
-        x = x*sigma
+        x = torch.randn(batch_size, self.dim, device=self.device)
+        logp = -0.5 * x.pow(2).add(math.log(2 * math.pi)).sum(1) 
         return self.integrate(x, logp, sign=1)
 
     def nll(self, x):
