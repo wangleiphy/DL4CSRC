@@ -28,3 +28,11 @@ The computation graph of a simple classification network is
 Mathematical definitions of each node, code realizations are contained in `computation_graph.py`
 
 <img src="../assets/formulas.png" width="500px" alt="formulas"/>
+
+
+
+## Credits: 
+
+Shuo-Hui Li <contact_lish@iphy.ac.cn>
+
+Jin-Guo Liu <cacate0129@iphy.ac.cn>>

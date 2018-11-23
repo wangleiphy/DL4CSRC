@@ -5,5 +5,5 @@
 2. [Differentiable Ising solver](https://github.com/wangleiphy/dl4csrc/tree/master/2-ising)
 3. [Fun with normalizing flows](https://github.com/wangleiphy/dl4csrc/tree/master/3-flow)
 
-Please send questions and feedbacks to Lei Wang <wanglei@iphy.ac.cn>. Thank you! 
+Please send questions and feedbacks to  <wanglei@iphy.ac.cn>. Thank you! 
 
