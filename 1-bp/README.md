@@ -22,4 +22,6 @@ This program will
 
 The computation graph representation of the above network and the mathematical definitions of each node
 
-<img src="/Users/lili/pycode/DL4CSRC/1-bp/cgraph_mnist_full.png" width="300px"/>![formulas](/Users/lili/pycode/DL4CSRC/1-bp/formulas.png)  
+<img src="cgraph_mnist_full.png" width="300px"/>
+
+![formulas](formulas.png)  
