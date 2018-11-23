@@ -22,6 +22,5 @@ This program will
 
 The computation graph representation of the above network and the mathematical definitions of each node
 
-<img src="cgraph_mnist_full.png" width="300px"/>
-
-![formulas](formulas.png)  
+<img src="cgraph_mnist_full.png" width="300px" alt="computation graph"/>
+<img src="formulas.png" width="500px" alt="formulas"/>
