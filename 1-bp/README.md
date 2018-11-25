@@ -22,17 +22,22 @@ It will
 
 The computation graph of a simple classification network is
 
-<img src="../assets/cgraph_mnist_full.png" width="300px" alt="computation graph"/>
+<p align="center">
+<img align="middle" src="../assets/cgraph_mnist_full.png" width="300" alt="computation graph"/>
+</p>
+
 
 ## Node definitions
 Mathematical definitions of each node, code realizations are contained in `computation_graph.py`
 
-<img src="../assets/formulas.png" width="500px" alt="formulas"/>
+<p align="center">
+<img align="middle" src="../assets/formulas.png" width="500" alt="formulas"/>
+</p>
 
 
 
-## Credits: 
+## Credits
 
 Shuo-Hui Li <contact_lish@iphy.ac.cn>
 
-Jin-Guo Liu <cacate0129@iphy.ac.cn>>
+Jin-Guo Liu <cacate0129@iphy.ac.cn>
