@@ -6,18 +6,21 @@ import matplotlib.pyplot as plt
 
 from net import Simple_MLP, MLP
 from flow import MongeAmpereFlow
+import objectives
 
 if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser(description='')
     parser.add_argument("-cuda", type=int, default=-1, help="use GPU")
     parser.add_argument("-net", default='Simple_MLP', help="network architecture")
+    parser.add_argument("-target", default='Ring2D', 
+                        choices=['Ring2D', 'Ring5', 'Wave', 'Gaussian', 'Mog2'], help="target distribution")
     args = parser.parse_args()
     device = torch.device("cpu" if args.cuda<0 else "cuda:"+str(args.cuda))
 
     xlimits=[-4, 4]
     ylimits=[-4, 4]
-    numticks=21
+    numticks=31
     x = np.linspace(*xlimits, num=numticks, dtype=np.float32)
     y = np.linspace(*ylimits, num=numticks, dtype=np.float32)
     X, Y = np.meshgrid(x, y)
@@ -34,8 +37,7 @@ if __name__=='__main__':
         plt.xlim(xlimits)
         plt.ylim(ylimits)
 
-    from objectives import Ring2D
-    target = Ring2D()
+    target = getattr(objectives, args.target)()
     target.to(device)
 
     epsilon = 0.1 
@@ -47,7 +49,6 @@ if __name__=='__main__':
     ax = fig.add_subplot(111, frameon=False)
     plt.ion()
     plt.show(block=False)
-    
 
     if (args.net=='Simple_MLP'):
         net = Simple_MLP(dim=2, hidden_size = 32, device = device)
