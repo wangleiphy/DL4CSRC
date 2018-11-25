@@ -51,17 +51,17 @@ class MLP(nn.Module):
         out = self.fc3(out)
         return out.sum(dim=1)
 
-    def grad(self, x):
-        out = self.fc1(x)
-        a2_prime = self.activation1_prime(out)
-        out = self.fc2(self.activation1(out))
-        a3_prime = self.activation2_prime(out)
+    #def grad(self, x):
+    #    out = self.fc1(x)
+    #    a2_prime = self.activation1_prime(out)
+    #    out = self.fc2(self.activation1(out))
+    #    a3_prime = self.activation2_prime(out)
 
-        res = torch.mm(a3_prime, torch.diag(self.fc3.weight[0]))
-        res = torch.mm(res, self.fc2.weight)
-        res = res*a2_prime
-        res = torch.mm(res, self.fc1.weight)
-        return res
+    #    res = torch.mm(a3_prime, torch.diag(self.fc3.weight[0]))
+    #    res = torch.mm(res, self.fc2.weight)
+    #    res = res*a2_prime
+    #    res = torch.mm(res, self.fc1.weight)
+    #    return res
 
     #def laplacian(self, x):
     #    out = self.fc1(x)
@@ -81,6 +81,9 @@ class MLP(nn.Module):
     #    res2 = torch.mm(res2, self.fc1.weight**2)
 
     #    return res1.sum(dim=1) + res2.sum(dim=1)
+    
+    def grad(self, x):
+        return torch.autograd.grad(self.forward(x), x, grad_outputs=torch.ones(x.shape[0], device=x.device), create_graph=True)[0]
 
     def laplacian(self, x):
         '''
