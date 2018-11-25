@@ -2,6 +2,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.checkpoint import checkpoint
 
 class MongeAmpereFlow(nn.Module):
     '''
@@ -10,7 +11,7 @@ class MongeAmpereFlow(nn.Module):
     dx/dt = grad u(x)
     dlnp(x)/dt = -laplacian u(x) 
     '''
-    def __init__(self, net, epsilon, Nsteps, device='cpu', name=None):
+    def __init__(self, net, epsilon, Nsteps, device='cpu', name=None, checkpoint=False):
         super(MongeAmpereFlow, self).__init__()
         self.device = device
         if name is None:
@@ -21,6 +22,7 @@ class MongeAmpereFlow(nn.Module):
         self.dim = net.dim
         self.epsilon = epsilon 
         self.Nsteps = Nsteps
+        self.checkpoint = checkpoint
 
     def integrate(self, x, logp, sign=1, epsilon=None, Nsteps=None):
         #default values
@@ -31,7 +33,10 @@ class MongeAmpereFlow(nn.Module):
 
         #integrate ODE for x and logp(x)
         def ode(x):
-            return sign*epsilon*self.net.grad(x), -sign*epsilon*self.net.laplacian(x)
+            if self.checkpoint:
+                return sign*epsilon*checkpoint(self.net.grad, x), -sign*epsilon*checkpoint(self.net.laplacian, x)
+            else:
+                return sign*epsilon*self.net.grad(x), -sign*epsilon*self.net.laplacian(x)
 
         #rk4
         for step in range(Nsteps):
