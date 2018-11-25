@@ -5,8 +5,10 @@ import torch.nn.functional as F
 
 class MongeAmpereFlow(nn.Module):
     '''
-    dx/dt = du(x)/dx
-    dlnp(x)/dt = -d^2 u(x)/dx^2 
+    Monge-Ampere Flow for generative modeling 
+    https://arxiv.org/abs/1809.10188
+    dx/dt = grad u(x)
+    dlnp(x)/dt = -laplacian u(x) 
     '''
     def __init__(self, net, epsilon, Nsteps, device='cpu', name=None):
         super(MongeAmpereFlow, self).__init__()
@@ -29,7 +31,6 @@ class MongeAmpereFlow(nn.Module):
 
         #integrate ODE for x and logp(x)
         def ode(x):
-            #special to Simple_MLP
             return sign*epsilon*self.net.grad(x), -sign*epsilon*self.net.laplacian(x)
 
         #rk4
