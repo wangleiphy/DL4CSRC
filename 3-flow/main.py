@@ -4,15 +4,16 @@ import torch.nn as nn
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from net import Simple_MLP, MLP
 from flow import MongeAmpereFlow
+import net 
 import objectives
 
 if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser(description='')
     parser.add_argument("-cuda", type=int, default=-1, help="use GPU")
-    parser.add_argument("-net", default='Simple_MLP', help="network architecture")
+    parser.add_argument("-net", default='Simple_MLP', choices=['Simple_MLP', 'MLP'], 
+                                                       help="network architecture")
     parser.add_argument("-target", default='Ring2D', 
                         choices=['Ring2D', 'Ring5', 'Wave', 'Gaussian', 'Mog2'], help="target distribution")
     args = parser.parse_args()
@@ -50,14 +51,7 @@ if __name__=='__main__':
     plt.ion()
     plt.show(block=False)
 
-    if (args.net=='Simple_MLP'):
-        net = Simple_MLP(dim=2, hidden_size = 32, device = device)
-    elif (args.net=='MLP'):
-        net = MLP(dim=2, hidden_size = 32, device = device)
-    else:
-        print ('what net ?', args.net)
-        sys.exit(1)
-
+    net = getattr(net, args.net)(dim=2, hidden_size=32, device=device)
     model = MongeAmpereFlow(net, epsilon, Nsteps, device=device)
     model.to(device)
 
