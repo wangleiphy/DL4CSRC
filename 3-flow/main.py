@@ -70,19 +70,20 @@ if __name__=='__main__':
         model.zero_grad()
         loss.backward()
         optimizer.step()
+        
+        with torch.no_grad():
+            print (e, loss.item())
+            np_losses.append([loss.item()])
 
-        print (e, loss.item())
-        np_losses.append([loss.item()])
+            plt.cla()
+            plot_isocontours(ax, target, alpha=0.5)
+            plot_isocontours(ax, model.net) # Breiner potential 
 
-        plt.cla()
-        plot_isocontours(ax, target, alpha=0.5)
-        plot_isocontours(ax, model.net) # Breiner potential 
+            samples = x.cpu().detach().numpy()
+            plt.plot(samples[:, 0], samples[:,1],'o', alpha=0.8)
 
-        samples = x.cpu().detach().numpy()
-        plt.plot(samples[:, 0], samples[:,1],'o', alpha=0.8)
-
-        plt.draw()
-        plt.pause(0.01)
+            plt.draw()
+            plt.pause(0.01)
 
     np_losses = np.array(np_losses)
     fig = plt.figure(figsize=(8,8), facecolor='white')

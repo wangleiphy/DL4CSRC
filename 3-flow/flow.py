@@ -59,12 +59,17 @@ class MongeAmpereFlow(nn.Module):
         x, logp = self.integrate(x, logp, sign=-1)
         return logp + 0.5 * x.pow(2).add(math.log(2 * math.pi)).sum(1)
 
+    def check_reversibility(self, x, logp):
+        z, logp_z = self.integrate(x, logp, sign=-1)
+        x_back, logp_back = self.integrate(z, logp_z, sign=1)
+
+        x_error = ((x-x_back).abs().sum()) # check reversibility 
+        logp_error = ((logp- logp_back).abs().sum())
+        return x_error, logp_error
+
 if __name__=='__main__':
     from net import Simple_MLP
     net = Simple_MLP(dim=2, hidden_size = 32)
     model = MongeAmpereFlow(net, epsilon=0.1, Nsteps=100)
-    x, logpx = model.sample(10)
-    z, logpz = model.integrate(x, logpx, sign=-1)
-    x_back, logpx_back = model.integrate(z, logpz, sign=1)
-    print ((x-x_back).abs().sum()) # check reversibility 
-    print ((logpx- logpx_back).abs().sum())
+    x, logp = model.sample(10)
+    print (model.check_reversibility(x, logp))
