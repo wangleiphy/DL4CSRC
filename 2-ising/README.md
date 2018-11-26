@@ -15,3 +15,11 @@ Finally, [tfim.py](https://github.com/wangleiphy/DL4CSRC/blob/master/2-ising/tfi
 
 **You see that differentiable programing is a notion which goes beyond deep neural networks. Think about what can you do with this in mind.**
 
+## Running a Julia Project
+Several steps can get `onsager.jl` run provided you have a [Julia](https://julialang.org/) installed on your device
+1. Open a terminal, enter the julia Pkg mode by typing `]` inside a julia REPL, and install required packages
+```julia console
+(v1.0) pkg> activate .
+(v1.0) pkg> instantiate
+```
+2. Exit Julia REPL, and run this file in the terminal by typing `$ julia --project onsager.jl`.
