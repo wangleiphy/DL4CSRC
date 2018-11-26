@@ -1,4 +1,6 @@
-Here we will learn about Normalizing Flows for variational calculation. The idea is to transform simple base distribution in the latent space (e.g. independent Gaussian which we can sample directly) to complex target distributions in the data space via iterative change-of-varibales. Normalizing Flows are simple yet elegant generative models which demonstrate **representation learning**. 
+# Fun with Normalizing Flows
+
+Normalizing Flows are an iterative flows from the latent space of simple *base distribution* (e.g. independent Gaussians) to the data space with complex distributions. These flows are reversible, which means that you can use them to map complex data distribution to the normal distribution, hence the name **Normalizing Flow**. Normalizing Flows are simple yet elegant generative models which demonstrate **representation learning**. 
 
 Some background readings before start:
 

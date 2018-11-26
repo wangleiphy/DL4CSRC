@@ -12,11 +12,11 @@ $ python learn_mnist_classification.py
 
 It will
 
-1). check the consistency of gradients obtained by back-propagation and numeric differentiation,
+1 check the consistency of gradients obtained by back-propagation and numeric differentiation,
 
-2). download MNIST dataset (hand written digits) from the internet,
+2 download MNIST dataset (hand written digits) from the internet,
 
-3). build a classification network and learn to classify MNIST images.
+3 build a classification network and learn to classify MNIST images.
 
 ## Building blocks of a simple classification networks
 

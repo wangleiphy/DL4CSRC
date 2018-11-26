@@ -1,3 +1,5 @@
+# Differentiable Ising solver
+
 Here we learn about **differentiable scientific programing** using our beloved Ising model. 
 
 Some background readings before start:
