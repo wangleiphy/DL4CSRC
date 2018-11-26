@@ -51,17 +51,17 @@ class MLP(nn.Module):
         out = self.fc3(out)
         return out.sum(dim=1)
 
-    def grad(self, x):
-        out = self.fc1(x)
-        a2_prime = self.activation1_prime(out)
-        out = self.fc2(self.activation1(out))
-        a3_prime = self.activation2_prime(out)
+    #def grad(self, x):
+    #    out = self.fc1(x)
+    #    a2_prime = self.activation1_prime(out)
+    #    out = self.fc2(self.activation1(out))
+    #    a3_prime = self.activation2_prime(out)
 
-        res = torch.mm(a3_prime, torch.diag(self.fc3.weight[0]))
-        res = torch.mm(res, self.fc2.weight)
-        res = res*a2_prime
-        res = torch.mm(res, self.fc1.weight)
-        return res
+    #    res = torch.mm(a3_prime, torch.diag(self.fc3.weight[0]))
+    #    res = torch.mm(res, self.fc2.weight)
+    #    res = res*a2_prime
+    #    res = torch.mm(res, self.fc1.weight)
+    #    return res
 
     #def laplacian(self, x):
     #    out = self.fc1(x)
@@ -81,16 +81,20 @@ class MLP(nn.Module):
     #    res2 = torch.mm(res2, self.fc1.weight**2)
 
     #    return res1.sum(dim=1) + res2.sum(dim=1)
+    
+    def grad(self, x):
+        with torch.enable_grad(): 
+            forward = self.forward(x)
+        return torch.autograd.grad(forward, x, grad_outputs=torch.ones(x.shape[0], device=x.device), create_graph=True)[0]
 
     def laplacian(self, x):
         '''
         Hutchinsons trick for Laplacian (Hessian trace)
         see http://blog.shakirm.com/2015/09/machine-learning-trick-of-the-day-3-hutchinsons-trick/
         '''
-        batchsize = x.shape[0]
-        z = torch.randn(batchsize, self.dim).to(x.device)
-        grad_z = (self.grad(x)*z).sum(dim=1)
-        grad2_z = torch.autograd.grad(grad_z, x, grad_outputs=torch.ones(x.shape[0], device=x.device), create_graph=True)[0]
+        grad = self.grad(x)
+        z = torch.randn(x.shape[0], self.dim, device=x.device)
+        grad2_z = torch.autograd.grad(grad, x, grad_outputs=z, create_graph=True)[0]
         return (grad2_z * z).sum(dim=1)
 
 class Simple_MLP(nn.Module):
