@@ -14,12 +14,3 @@ Next, it is actually possible to compute gradient with respect to a whole bunch 
 Finally, [tfim.py](https://github.com/wangleiphy/DL4CSRC/blob/master/2-ising/tfim.py) shows a differentiable eigensolver for 1D quantum Ising model. The goal is to learn its model parameters (Ising couplings and transverse fields) so to maximize its ground state overlap with a given target state. It is a fun setup for Hamiltonian engineering. N.B. Again, consider compile from source or install latest build of PyTorch if you see `the derivative for 'symeig' is not implemented` error. They only implemented backward through `torch.symeig` function [very recently](https://github.com/pytorch/pytorch/pull/8586).   
 
 **You see that differentiable programing is a notion which goes beyond deep neural networks. Think about what can you do with this in mind.**
-
-## Running a Julia Project
-Several steps can get `onsager.jl` run provided you have a [Julia](https://julialang.org/) installed on your device
-1. Open a terminal, enter the julia Pkg mode by typing `]` inside a julia REPL, and install required packages
-```julia console
-(v1.0) pkg> activate .
-(v1.0) pkg> instantiate
-```
-2. Exit Julia REPL, and run this file in the terminal by typing `$ julia --project onsager.jl`.
